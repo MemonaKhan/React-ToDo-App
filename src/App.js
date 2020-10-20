@@ -1,3 +1,4 @@
+import { database } from 'firebase';
 import React from 'react';
 import './App.css';
 import firebase from './config/firebase'
@@ -16,15 +17,17 @@ class App extends React.Component {
       let todos = [];
       snapshot.forEach(snap => {
         // snap.val() is the dictionary with all your keys/values from the 'students-list' path
-        todos.push(snap.val());
-        // todos.push({             Can also do this
-        //   title:snap.val().title,
-        //   edit: snap.val().edit
-        // });
-        console.log(todos);
+        // todos.push(snap.val());Can also do this but we need key
+        todos.push({
+          title: snap.val().title,
+          edit: snap.val().edit,
+          key: snap.key
+        });
+        // console.log(todos);
       });
       // this.setState({ todos: todos }); Can do this but we have another property 'value ' here
       this.setState({
+
         todos: todos,
         value: ""
       })
@@ -34,40 +37,51 @@ class App extends React.Component {
     let item = { title: this.state.value, edit: false };
     firebase.database().ref('/').child('todos').push(item);
 
-    this.setState({
-      todos: [...this.state.todos, item],
-      value: ""
-    })
+    // this.setState({
+    //   todos: [...this.state.todos, item],
+    //   value: ""
+    // })                                  When we do without firebase
+    this.componentDidMount();
   }
   changeEdit = (index, condition) => {
     if (condition) {
-      this.state.todos[index].edit = true;
+      // this.state.todos[index].edit = true;              When we do without firebase
+      firebase.database().ref("todos").child(index).update({'edit':true})
     }
     else {
-      this.state.todos[index].edit = false;
+      // this.state.todos[index].edit = false;               When we do without firebase
+      firebase.database().ref("todos").child(index).update({'edit':false})
+
     }
-    this.setState({
-      todos: this.state.todos
-    })
+    // this.setState({
+    //   todos: this.state.todos
+    // })
   }
   updateToDo = (item, index) => {
-    this.state.todos[index].title = item.target.value;
-    this.setState({
-      todos: this.state.todos,
-    })
+    // this.state.todos[index].title = item.target.value;           When we do without firebase
+    let todo = item.target.value;
+    console.log(todo)
+    // this.setState({
+    //   todos: this.state.todos,
+    // })                                  When we do without firebase
+    firebase.database().ref("todos").child(index).update({'title': todo})
   }
 
   deleteToDo = (index) => {
-    this.state.todos.splice(index, 1);
-    this.setState({
-      todos: this.state.todos
-    })
+    // this.state.todos.splice(index, 1);
+    // this.setState({
+    //   todos: this.state.todos
+    // })                                   When we do without firebase
+    firebase.database().ref("todos").child(index).remove();
+
+    this.componentDidMount();
   }
   deleteAllTodos = () => {
-    this.setState({
-      todos: [],
-      value: ""
-    })
+    // this.setState({
+    //   todos: [],
+    //   value: ""
+    // })                                  When we do without firebase
+    firebase.database().ref('/').child('todos').set(null);
   }
   render() {
     let { todos, value } = this.state;
@@ -78,16 +92,16 @@ class App extends React.Component {
         <button onClick={this.deleteAllTodos}>Delete All Items</button>
         <ul>
           {this.state.todos.map((v, i) => {
-            return <li key={i}>
+            return <li key={v.key}>
               {v.edit ?
-                <input type="text" value={v.title} onChange={(e) => this.updateToDo(e, i)} />
+                <input type="text" value={v.title} onChange={(e) => this.updateToDo(e, v.key)} /> // 
                 :
                 v.title}
               {v.edit ?
-                <button onClick={() => this.changeEdit(i, false)}>Update</button>
+                <button onClick={() => this.changeEdit(v.key, false)}>Update</button>
                 :
-                <button onClick={() => this.changeEdit(i, true)}>Edit</button>}
-              <button onClick={() => this.deleteToDo(i)}>Delete</button>
+                <button onClick={() => this.changeEdit(v.key, true)}>Edit</button>}
+              <button onClick={() => this.deleteToDo(v.key)}>Delete</button>
             </li>
           })}
         </ul>
