@@ -85,13 +85,14 @@ class App extends React.Component {
   }
   render() {
     let { todos, value } = this.state;
+    
     return (
       <div>
         <input name="todo" type="text" value={value} onChange={(e) => this.setState({ value: e.target.value })} placeholder="Enter what to do" />
         <button onClick={this.addItem}>Add Item</button>
         <button onClick={this.deleteAllTodos}>Delete All Items</button>
         <ul>
-          {this.state.todos.map((v, i) => {
+          {this.state.todos.map((v) => { // also get i that is index of the array todos
             return <li key={v.key}>
               {v.edit ?
                 <input type="text" value={v.title} onChange={(e) => this.updateToDo(e, v.key)} /> // 
