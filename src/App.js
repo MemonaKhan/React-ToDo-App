@@ -2,6 +2,7 @@ import { database } from 'firebase';
 import React from 'react';
 import './App.css';
 import firebase from './config/firebase'
+import IMAGE from './image/background.jpg'
 
 class App extends React.Component {
   constructor() {
@@ -87,22 +88,23 @@ class App extends React.Component {
     let { todos, value } = this.state;
     
     return (
-      <div>
-        <input name="todo" type="text" value={value} onChange={(e) => this.setState({ value: e.target.value })} placeholder="Enter what to do" />
-        <button onClick={this.addItem}>Add Item</button>
-        <button onClick={this.deleteAllTodos}>Delete All Items</button>
+      <div className="body">
+        <h1 className="mainhead"><span className="heading">ToDo</span> APP</h1>
+        <input className="to-do" name="todo" type="text" value={value} onChange={(e) => this.setState({ value: e.target.value })} placeholder="Enter what to do" />
+        <button className="add" onClick={this.addItem}>+</button>
+        <button className="dlt" onClick={this.deleteAllTodos}>Delete All Items</button>
         <ul>
           {this.state.todos.map((v) => { // also get i that is index of the array todos
-            return <li key={v.key}>
+            return <li className="" key={v.key}>
               {v.edit ?
                 <input type="text" value={v.title} onChange={(e) => this.updateToDo(e, v.key)} /> // 
                 :
                 v.title}
               {v.edit ?
-                <button onClick={() => this.changeEdit(v.key, false)}>Update</button>
+                <button className="edit" onClick={() => this.changeEdit(v.key, false)}>Update</button>
                 :
-                <button onClick={() => this.changeEdit(v.key, true)}>Edit</button>}
-              <button onClick={() => this.deleteToDo(v.key)}>Delete</button>
+                <button className="edit" onClick={() => this.changeEdit(v.key, true)}>Edit</button>}
+              <button className="dlt" onClick={() => this.deleteToDo(v.key)}>Delete</button>
             </li>
           })}
         </ul>
